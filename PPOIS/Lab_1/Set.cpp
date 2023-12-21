@@ -111,8 +111,8 @@ Set Set::boolean() const
 	Set result;
 	result.add(0);
 	for (int element : m_set) {
-		Set temp = result;
-		for (int e : temp.m_set) {
+		Set Temporal_set = result;
+		for (int e : Temporal_set.m_set) {
 			result.add(e + element);
 		}
 	}
@@ -123,20 +123,20 @@ CantorSet::CantorSet(const char* str)
 {
 	string s(str);
 	int n = s.size();
-	string temp = "";
+	string Temporal_set = "";
 	for (int i = 0; i < n; i++) {
 		if (s[i] == '{' || s[i] == '}' || s[i] == ',') {
-			if (temp != "") {
-				set.push_back(temp);
-				temp = "";
+			if (Temporal_set != "") {
+				set.push_back(Temporal_set);
+				Temporal_set = "";
 			}
 		}
 		else {
-			temp += s[i];
+			Temporal_set += s[i];
 		}
 	}
-	if (temp != "") {
-		set.push_back(temp);
+	if (Temporal_set != "") {
+		set.push_back(Temporal_set);
 	}
 }
 
