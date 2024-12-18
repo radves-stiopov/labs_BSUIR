@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Войти в систему</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #fffacd, #ffebcd);
+            overflow: hidden;
+        }
+        .login-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px 60px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .login-form::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: linear-gradient(45deg, #ffd700, #ff4500);
+            z-index: -1;
+            filter: blur(20px);
+            border-radius: 10px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #ffd700;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #ff4500;
+        }
+        .register {
+            margin-top: 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <form class="login-form" onsubmit="submitForm(event)">
+        <h2>Добро пожаловать</h2>
+        <input id="username" type="text" placeholder="Имя пользователя" required>
+        <input id="password" type="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+        <br>
+        <a href="register.html" class="register">Зарегистрируйся</a>
+    </form>
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            console.log('Sending login request to server...', {username, password});
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                if (!response.ok) {
+                    throw new Error('Login failed');
+                }
+                const role = await response.json();
+                document.cookie = `username=${username}`;
+                if (role.role === "operator") {
+                    window.location.href = "/profile_operator.html";
+                } else {
+                    window.location.href = "/profile_drive.html";
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

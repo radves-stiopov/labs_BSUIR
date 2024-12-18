@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #fffacd, #ffebcd);
+            overflow: hidden;
+        }
+        .profile-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px 60px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .profile-container::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: linear-gradient(45deg, #ffd700, #ff4500);
+            z-index: -1;
+            filter: blur(20px);
+            border-radius: 10px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            background-color: #fff;
+        }
+        button {
+            background: #ffd700;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #ff4500;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        #editProfileModal {
+            display: none;
+            position: fixed; 
+            z-index: 2; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            animation: slideIn 0.5s;
+            border-radius: 10px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-300px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: tableFadeIn 0.8s ease-in-out;
+        }
+
+        th {
+            background-color: #ffd700;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px;
+            animation: thHighlight 0.5s ease-in-out;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            animation: tdHighlight 0.5s ease-in-out;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fffaf0;
+            animation: rowFadeIn 0.5s ease-in-out;
+        }
+
+        tr:hover {
+            background-color: #ffe4b5;
+            animation: rowHover 0.3s ease-in-out;
+        }
+
+        @keyframes tableFadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes thHighlight {
+            from { background-color: #ffa500; }
+            to { background-color: #ffd700; }
+        }
+
+        @keyframes tdHighlight {
+            from { transform: scale(1.05); }
+            to { transform: scale(1); }
+        }
+
+        @keyframes rowFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+
+        @keyframes rowHover {
+            from { background-color: #ffd700; }
+            to { background-color: #ffe4b5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h2>Добро пожаловать, <span id="userName"></span>!</h2>
+        <p>Данные профиля</p>
+        <p>Телефон: <span id="userPhone"></span></p>
+        <p>Карта: <span id="userCard"></span></p>
+        <button onclick="openEditProfileModal()">Изменить данные</button>
+        <a href="add_place.html"><button>Добавить</button></a>
+        <table>
+            <thead>
+                <tr>
+                    <th>Адрес</th>
+                    <th>Цена</th>
+                    <th>Отмена</th>
+                </tr>
+            </thead>
+            <tbody id="placesTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div id="editProfileModal" style="display:none;">
+        <div class="modal-content">
+            <span onclick="closeEditProfileModal()" style="cursor:pointer">&times;</span>
+            <h2>Изменить профиль</h2>
+            <label for="editPhone">Телефон:</label>
+            <input type="text" id="editPhone" oninput="validatePhone(this)">
+            <br>
+            <label for="editCard">Карта:</label>
+            <input type="text" id="editCard">
+            <br>
+            <button onclick="submitProfileChanges()">Сохранить изменения</button>
+        </div>
+    </div>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const userName = getCookie('username'); 
+            document.getElementById('userName').innerText = userName ? userName : 'Имя';
+
+            fetchProfileData();
+            fetchPlaces();
+        });
+
+        function fetchProfileData() {
+            fetch(`/api/getProfileData/${getCookie('username')}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('userPhone').innerText = data.phone;
+                    document.getElementById('userCard').innerText = data.card;
+                });
+        }
+
+        function fetchPlaces() {
+            fetch(`/api/getPlaces/${getCookie('username')}`)  
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('placesTableBody');
+                    data.forEach(place => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${place.address}</td>
+                            <td>${place.price.toFixed(2)}</td>
+                            <td><button onclick="cancelPlace(${place.id})">Отмена</button></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                });
+        }
+
+        function cancelPlace(placeId) {
+            fetch(`/api/deletePlace/${placeId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                location.reload();
+            })
+            .catch(error => alert(error.message));
+        }
+
+        function openEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'block';
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function validatePhone(input) {
+            const sanitizedValue = input.value.replace(/[^0-9]/g, '');
+            input.value = sanitizedValue;
+        }
+
+        function submitProfileChanges() {
+            const phone = document.getElementById('editPhone').value;
+            const card = document.getElementById('editCard').value;
+
+            fetch(`/api/updateProfile/${getCookie('username')}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone, card })
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Ошибка при обновлении профиля');
+                }
+            });
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список Бронирования</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #fffacd, #ffebcd);
+            overflow: hidden;
+        }
+        .place-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 80%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .place-item {
+            background: rgba(255, 255, 255, 0.9);
+            margin: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 300px;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1s ease-in-out;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+        .place-item:hover {
+            transform: translateY(0);
+        }
+        .place-item::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: linear-gradient(45deg, #ffd700, #ff4500);
+            z-index: -1;
+            filter: blur(20px);
+            border-radius: 10px;
+        }
+        h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        button {
+            background: #ffd700;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #ff4500;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        async function fetchPlaces() {
+            try {
+                const response = await fetch('/api/places');
+                const data = await response.json();
+                const places = data.places;
+                const placeList = document.querySelector('.place-list');
+                placeList.innerHTML = '';
+                if (Array.isArray(places) && places.length > 0) {
+                    places.forEach(place => {
+                        const placeItem = document.createElement('div');
+                        placeItem.className = 'place-item';
+                        placeItem.innerHTML = `
+                            <h2>${place.address}</h2>
+                            <p>Владелец: ${place.owner_id}</p>
+                            <p>Цена: $${place.price.toFixed(2)}</p>
+                            <button onclick="openModal('${place.id}')">Забронировать</button>
+                        `;
+                        placeList.appendChild(placeItem);
+                    });
+                } else {
+                    placeList.innerHTML = '<h3>Пока нет свободных мест</h3>';
+                    console.error('Expected an array of places, but received:', places);
+                }
+            } catch (error) {
+                console.error('Error fetching places:', error);
+            }
+        }
+
+        function openModal(placeId) {
+            const modal = document.querySelector('.modal');
+            modal.style.display = 'flex';
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = `
+                <h3>Выберите метод оплаты</h3>
+                <button onclick="confirmPayment('${placeId}', 'cash')">Наличные</button>
+                <button onclick="confirmPayment('${placeId}', 'card')">Карта</button>
+            `;
+        }
+
+        async function confirmPayment(placeId, method) {
+            const modalContent = document.querySelector('.modal-content');
+            modalContent.innerHTML = '<div class="loading-spinner"></div>';
+
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            const startDate = prompt('Введите дату начала бронирования (в формате ГГГГ-ММ-ДД):');
+            const endDate = prompt('Введите дату окончания бронирования (в формате ГГГГ-ММ-ДД):');
+
+            const username = getCookie('username');
+
+            if (!startDate || !endDate || !username) {
+                modalContent.innerHTML = '<h3>Ошибка: заполните все поля.</h3>';
+                return;
+            }
+            
+            console.log(JSON.stringify({ placeId, method, username, startDate, endDate }));
+            const response = await fetch(`/api/book`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ placeId, method, username, startDate, endDate })
+            });
+
+            if (response.ok) {
+                modalContent.innerHTML = '<h3>Покупка успешна!</h3>';
+            } else {
+                modalContent.innerHTML = '<h3>Ошибка при покупке</h3>';
+            }
+            
+            setTimeout(() => {
+                window.location.href = '/profile_drive.html';
+            }, 1000);
+        }
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        window.onload = fetchPlaces;
+    </script>
+</head>
+<body>
+    <h1>Места парковок</h1>
+    <div class="place-list">
+    </div>
+    <div class="modal">
+        <div class="modal-content">
+        </div>
+    </div>
+</body>
+</html>
