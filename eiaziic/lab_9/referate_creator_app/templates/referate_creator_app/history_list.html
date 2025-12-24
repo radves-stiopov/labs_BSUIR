@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архив реферирования — Document Abstractor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent-color: #6366f1;
+            --tree-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+            padding-bottom: 5rem;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 40px 0;
+            margin-bottom: 40px;
+            color: white;
+            border-radius: 0 0 40px 40px;
+        }
+
+        .doc-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .doc-header {
+            background: #ffffff;
+            padding: 20px 30px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            height: 100%;
+            border: 1px solid #f1f5f9;
+        }
+
+        /* Древовидный вывод (как в результатах) */
+        .keyword-tree {
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            padding: 20px;
+            background: var(--tree-bg);
+            border-radius: 12px;
+            color: #334155;
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .badge-weight {
+            background: #eef2ff;
+            color: var(--accent-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #e0e7ff;
+            margin-right: 12px;
+        }
+
+        .timestamp {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .btn-custom {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header text-center">
+    <div class="container">
+        <h1 class="display-6 fw-bold">История реферирования</h1>
+        <p class="opacity-75">Архив всех обработанных документов</p>
+    </div>
+</div>
+
+<div class="container">
+    {% for result in history_results %}
+    <div class="doc-container">
+        <div class="doc-header d-flex justify-content-between align-items-center">
+            <div>
+                <span class="timestamp">{{ result.classic_summary.created_at|date:"d.m.Y H:i" }}</span>
+                <h4 class="mb-0 fw-bold text-dark">{{ result.document.title }}</h4>
+            </div>
+            <button class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#text-{{ result.document.id }}">
+                🔍 Исходный текст
+            </button>
+        </div>
+
+        <div class="collapse" id="text-{{ result.document.id }}">
+            <div class="p-4 border-bottom" style="background: #f8fafc;">
+                <pre class="m-0" style="background: #1e293b; color: #cbd5e1; padding: 20px; border-radius: 12px; white-space: pre-wrap; font-size: 0.85rem; max-height: 250px; overflow-y: auto;">{{ result.document.text_content }}</pre>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="section-card">
+                        <h5 class="fw-bold mb-4 text-primary">📊 Значимые предложения</h5>
+                        <div class="summary-content" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.7;">
+                            {{ result.classic_summary.content }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="section-card">
+                        <h5 class="fw-bold mb-4 text-success">🌿 Дерево концептов</h5>
+                        <div class="keyword-tree">{% if result.keywords_formatted %}{{ result.keywords_formatted }}{% else %}Структура не сохранена{% endif %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+        <p class="text-muted fs-5">История реферирования пуста.</p>
+        <a href="{% url 'select_documents' %}" class="btn btn-primary btn-custom px-4">Начать анализ</a>
+    </div>
+    {% endfor %}
+
+    <div class="text-center mt-5">
+        <a href="/" class="btn btn-custom btn-outline-secondary me-2">← На главную</a>
+        <a href="{% url 'select_documents' %}" class="btn btn-custom btn-primary px-4">Новое реферирование</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Скрипт для превращения списка в дерево (аналогично результатам)
+    document.querySelectorAll('.keyword-tree').forEach(tree => {
+        let content = tree.innerHTML;
+        // Заменяем маркеры списка на визуальные ветки дерева
+        content = content.replace(/^(\s*)[-*+•]/gm, '$1└─');
+        tree.innerHTML = content;
+    });
+</script>
+
+</body>
+</html>

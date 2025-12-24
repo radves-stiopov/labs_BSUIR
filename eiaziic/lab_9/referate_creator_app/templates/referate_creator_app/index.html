@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Abstractor — Главная</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            color: #333;
+            padding: 3rem;
+            transition: transform 0.3s ease;
+        }
+
+        .upload-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .upload-zone:hover {
+            border-color: #764ba2;
+            background: #fff;
+        }
+
+        .btn-custom {
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary-custom {
+            background: #764ba2;
+            border: none;
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            background: #5a3682;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        .nav-buttons .btn {
+            min-width: 220px;
+        }
+
+        .footer-text {
+            color: rgba(255,255,255,0.7);
+        }
+
+        h2 {
+            font-weight: 600;
+            color: #2d3436;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 text-center">
+
+            <div class="main-card">
+                <h2 class="mb-2">Document Abstractor</h2>
+                <p class="text-muted mb-5">Интеллектуальная система автоматического реферирования</p>
+
+                <form method="post" enctype="multipart/form-data" action="{% url 'upload_document' %}" class="mb-5">
+                    {% csrf_token %}
+                    <div class="upload-zone mb-4">
+                        <label for="source_file" class="form-label d-block text-muted">Выберите документы для анализа</label>
+                        <input type="file" name="source_file" id="source_file" class="form-control" multiple required>
+                    </div>
+                    <button type="submit" class="btn btn-custom btn-primary-custom w-100">
+                        🚀 Загрузить и обработать
+                    </button>
+                </form>
+
+                <hr class="my-4" style="opacity: 0.1;">
+
+                <div class="nav-buttons d-flex flex-wrap justify-content-center">
+                    <a href="{% url 'documents_list' %}" class="btn btn-custom btn-outline-secondary">
+                        📂 Библиотека
+                    </a>
+                    <a href="{% url 'select_documents' %}" class="btn btn-custom btn-outline-dark">
+                        📝 Реферирование
+                    </a>
+                    <a href="{% url 'history_list' %}" class="btn btn-custom btn-outline-info">
+                        🕒 История
+                    </a>
+                    <a href="{% url 'help_page' %}" class="btn btn-custom btn-outline-primary">
+                        ❓ Помощь
+                    </a>
+                </div>
+            </div>
+
+            <footer class="footer-text py-4 mt-4">
+                <small>© 2025 Document Abstractor | БГУИР</small>
+            </footer>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

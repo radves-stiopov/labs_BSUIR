@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справка по системе</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a69bd;
+            --accent-color: #1e3799;
+            --bg-body: #f8fbff;
+        }
+        body { background-color: var(--bg-body); font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #2d3436; }
+
+        .main-card { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            padding: 2.5rem;
+            color: white;
+            text-align: center;
+        }
+
+        /* Стиль шагов */
+        .step-item { position: relative; padding-left: 3rem; margin-bottom: 1.5rem; }
+        .step-number {
+            position: absolute; left: 0; top: 0;
+            width: 35px; height: 35px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Карточки методов */
+        .method-card {
+            border: 1px solid #edf2f7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            transition: transform 0.2s;
+        }
+        .method-card:hover { transform: scale(1.01); border-color: var(--primary-color); }
+        .method-title { color: var(--accent-color); font-weight: 700; display: flex; align-items: center; }
+        .method-title span { margin-right: 10px; font-size: 1.5rem; }
+
+        .metric-box {
+            background: #f1f4f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        code { color: #d63031; font-weight: 600; }
+        .btn-home { padding: 0.8rem 2rem; border-radius: 10px; font-weight: 600; }
+    </style>
+</head>
+<body class="py-5">
+
+<div class="container" style="max-width: 900px;">
+    <div class="main-card bg-white card">
+        <div class="card-header-custom">
+            <h1 class="h2 mb-2">Справка по системе</h1>
+            <p class="opacity-75 mb-0">Как работает наш интеллект для анализа документов</p>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <h3 class="fw-bold mb-4">Как это работает?</h3>
+            <div class="steps-container mb-5">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <strong>Загрузка:</strong> На главной странице загрузите PDF-файлы.
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <strong>Выбор:</strong> Отметьте нужные документы галочками в списке.
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <strong>Анализ:</strong> Система автоматически применит 3 независимых метода детекции.
+                </div>
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <strong>Результат:</strong> Получите отчет с метриками и временем обработки.
+                </div>
+            </div>
+
+            <hr class="my-5" style="border-top: 2px dashed #edf2f7;">
+
+            <h3 class="fw-bold mb-4 text-center">Описание методов анализа</h3>
+
+            <div class="method-card">
+                <div class="method-title mb-3">
+                    <span>📊</span> 1. Метод частотных слов
+                </div>
+                <p class="text-muted">Статистический анализ частоты употребления слов. Система сравнивает лексический состав документа с эталонными языковыми профилями русского и немецкого языков.</p>
+                <div class="metric-box">
+                    <strong>Метрика:</strong> Процент совпадения (0.0 – 1.0). Показывает долю слов из текста, найденных в словаре языка.
+                </div>
+            </div>
+
+            <div class="method-card">
+                <div class="method-title mb-3">
+                    <span>🔍</span> 2. Метод коротких слов
+                </div>
+                <p class="text-muted">Анализ служебных частей речи (предлоги, союзы, артикли до 5 символов). Это быстрые и точные маркеры, позволяющие мгновенно отличить один язык от другого.</p>
+                <div class="metric-box">
+                    <strong>Метрика:</strong> Аналогично первому методу, но расчет идет только по "коротким" лексемам.
+                </div>
+            </div>
+
+            <div class="method-card">
+                <div class="method-title mb-3">
+                    <span>🧠</span> 3. Нейросетевой метод (AI)
+                </div>
+                <p class="text-muted">Использование языковой модели <code>llama3</code>. AI анализирует не просто статистику, а структуру предложений и контекст. Самый интеллектуальный способ определения языка.</p>
+                <div class="metric-box">
+                    <strong>Метрика:</strong> Коэффициент уверенности (Confidence). Значение 0.99 означает 99% вероятности правильного ответа.
+                </div>
+            </div>
+
+            <div class="mt-5 text-center">
+                <a href="{% url 'index' %}" class="btn btn-primary btn-home shadow">
+                    Вернуться на главную
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --primary-accent: #6366f1;
+            --recording-red: #ef4444;
+            --bg-color: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+        }
+
+        .page-title {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            color: #0f172a;
+        }
+
+        .card {
+            border: none;
+            border-radius: 24px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Анимация пульсации при записи */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .recording-active {
+            animation: pulse-red 1.5s infinite;
+            background-color: var(--recording-red) !important;
+            border-color: var(--recording-red) !important;
+        }
+
+        /* Стили кнопок */
+        .btn-action {
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-record-start { background-color: var(--primary-accent); border: none; color: white; }
+        .btn-record-start:hover { background-color: #4f46e5; transform: translateY(-2px); }
+
+        /* Результат */
+        .result-card {
+            background: white;
+            border-left: 6px solid #10b981;
+        }
+
+        .recognized-text-area {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #334155;
+        }
+
+        #status {
+            font-size: 0.9rem;
+            font-weight: 500;
+            min-height: 24px;
+        }
+
+        /* Поле загрузки файла */
+        .form-control::file-selector-button {
+            background-color: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            margin-right: 16px;
+            color: #475569;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5 mb-5">
+    <h1 class="page-title">{{ title }}</h1>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 p-3">
+                <div class="card-body d-flex flex-column text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-microphone-lines fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Записать голос</h5>
+                        <p class="small text-muted">Используйте микрофон вашего устройства для мгновенного распознавания.</p>
+                    </div>
+
+                    <div class="mt-auto">
+                        <div id="status" class="mb-3 text-muted italic">Готов к работе</div>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-action btn-record-start px-4" id="startRecordingBtn">
+                                <i class="fas fa-play me-2"></i>Начать
+                            </button>
+                            <button class="btn btn-action btn-outline-secondary px-4" id="stopRecordingBtn" disabled>
+                                <i class="fas fa-stop me-2"></i>Стоп
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 p-3">
+                <div class="card-body d-flex flex-column">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-file-audio fa-3x text-secondary mb-3"></i>
+                        <h5 class="card-title">Загрузить файл</h5>
+                        <p class="small text-muted">MP3, WAV, M4A до 25 МБ</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" class="mt-auto">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <input type="file" class="form-control form-control-lg border-dashed" name="audio_file" required>
+                        </div>
+                        <button class="btn btn-action btn-dark w-100" type="submit">
+                            <i class="fas fa-wand-magic-sparkles me-2"></i>Распознать файл
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-container" class="mt-5">
+    {% if recognition_result %}
+        <div class="card result-card shadow-lg">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-success-subtle text-success px-3 py-2">Обработка завершена</span>
+                    <small class="text-muted">{{ recognition_result.uploaded_audio_file.name|cut:"uploads/" }}</small>
+                </div>
+
+                {% if recognition_result.status == 'COMPLETED' %}
+                    <h6 class="text-uppercase fw-bold small text-muted mb-3">Результат:</h6>
+                    <div class="recognized-text-area mb-4">
+                        "{{ recognition_result.recognized_text }}"
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'recognition_history' %}" class="btn btn-action btn-success">
+                            <i class="fas fa-history me-2"></i>В историю
+                        </a>
+                    </div>
+                {% elif recognition_result.status == 'FAILED' %}
+                    <div class="alert alert-danger border-0">
+                        <h6 class="fw-bold"><i class="fas fa-triangle-exclamation me-2"></i>Ошибка:</h6>
+                        <p class="mb-0">{{ recognition_result.error_message }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    </div>
+
+    {% if error_message %}
+        <div class="alert alert-danger mt-4 border-0 shadow-sm">{{ error_message }}</div>
+    {% endif %}
+
+    <div class="mt-5 pt-3 border-top d-flex gap-2">
+        <a href="{% url 'index' %}" class="btn btn-light btn-action">
+            <i class="fas fa-chevron-left me-2"></i>На главную
+        </a>
+        <a href="{% url 'recognition_history' %}" class="btn btn-light btn-action">
+           <i class="fas fa-list-ul me-2"></i>История
+        </a>
+    </div>
+</div>
+
+<script>
+// (Логика скрипта оставлена без изменений, так как она отвечает за работу сайта,
+// добавлены только визуальные переключения классов для анимации записи)
+document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('startRecordingBtn');
+    const stopBtn = document.getElementById('stopRecordingBtn');
+    const statusDiv = document.getElementById('status');
+
+    let mediaRecorder;
+    let audioChunks = [];
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        statusDiv.textContent = 'Браузер не поддерживает запись.';
+        startBtn.disabled = true;
+        return;
+    }
+
+    startBtn.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                sendAudioToServer(audioBlob);
+                stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            startBtn.disabled = true;
+            startBtn.classList.add('recording-active'); // Визуальный эффект
+            stopBtn.disabled = false;
+            statusDiv.textContent = '• Идёт запись...';
+            statusDiv.classList.replace('text-muted', 'text-danger');
+
+        } catch (err) {
+            statusDiv.textContent = 'Доступ к микрофону отклонен.';
+        }
+    });
+
+    stopBtn.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            startBtn.disabled = false;
+            startBtn.classList.remove('recording-active');
+            stopBtn.disabled = true;
+            statusDiv.textContent = 'Обработка...';
+            statusDiv.classList.replace('text-danger', 'text-primary');
+        }
+    });
+
+    async function sendAudioToServer(blob) {
+        const formData = new FormData();
+        formData.append('audio_file', blob, 'recording.webm');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        try {
+            const response = await fetch("{% url 'recognize_speech' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData
+            });
+
+            if (response.ok) {
+                const htmlResult = await response.text();
+                document.body.innerHTML = htmlResult;
+            } else {
+                statusDiv.textContent = `Ошибка: ${response.statusText}`;
+            }
+        } catch (error) {
+            statusDiv.textContent = 'Ошибка отправки.';
+        }
+    }
+});
+</script>
+</body>
+</html>

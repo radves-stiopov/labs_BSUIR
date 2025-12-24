@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Заголовок */
+        h1.display-title {
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Карточки и блоки */
+        .custom-card {
+            background: var(--glass-bg);
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .hero-section {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Список возможностей */
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .feature-list li::before {
+            content: "\f058";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #6366f1;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        /* Настройки (карточки) */
+        .settings-card {
+            border-left: 4px solid #6366f1;
+        }
+
+        /* Таблица */
+        .table-container {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            background: white;
+        }
+
+        .table thead {
+            background: #f1f5f9;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            padding: 1rem;
+        }
+
+        /* Кнопки */
+        .btn-custom-back {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom-back:hover {
+            background: #f8fafc;
+            color: #1e293b;
+            transform: translateX(-5px);
+        }
+
+        .badge-category {
+            background: #eef2ff;
+            color: #4f46e5;
+            font-weight: 500;
+            padding: 0.5em 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 mb-5">
+        <h1 class="display-title">{{ title }}</h1>
+
+        <div class="hero-section mb-5">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h2 class="fw-bold mb-3">О приложении</h2>
+                    <p class="lead text-muted">
+                        Это веб-приложение для синтеза речи, построенное на фреймворке <strong>Django</strong> и использующее передовые технологии от <strong>ElevenLabs</strong>.
+                    </p>
+                    <div class="mt-4">
+                        <p class="fw-bold text-uppercase small text-primary">Основные возможности:</p>
+                        <ul class="feature-list">
+                            <li><span><strong>Преобразование текста:</strong> Качественная аудиодорожка в один клик.</span></li>
+                            <li><span><strong>Выбор голосов:</strong> Огромная библиотека с разными акцентами.</span></li>
+                            <li><span><strong>Тонкая настройка:</strong> Контроль стабильности и сходства.</span></li>
+                            <li><span><strong>История:</strong> Мгновенный доступ к вашим прошлым генерациям.</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-none d-lg-block text-center">
+                    <i class="fas fa-waveform-lines fa-10x" style="color: #e2e8f0;"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h2 class="fw-bold mb-4">Параметры генерации</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card h-100 custom-card settings-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box me-3 text-primary"><i class="fas fa-sliders fa-lg"></i></div>
+                                <h4 class="card-title mb-0">Стабильность</h4>
+                            </div>
+                            <p class="text-muted small">Баланс между ясностью и эмоциональностью.</p>
+                            <div class="bg-light p-3 rounded-3 mb-3">
+                                <div class="mb-2 small"><strong>0.0:</strong> Высокая экспрессия, риск дефектов.</div>
+                                <div class="small"><strong>1.0:</strong> Ровный, дикторский голос.</div>
+                            </div>
+                            <p class="card-text"><small class="badge bg-light text-dark fw-normal">Совет: Начните с 0.75</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 custom-card settings-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box me-3 text-primary"><i class="fas fa-clone fa-lg"></i></div>
+                                <h4 class="card-title mb-0">Сходство</h4>
+                            </div>
+                            <p class="text-muted small">Насколько сильно голос следует оригиналу.</p>
+                            <div class="bg-light p-3 rounded-3 mb-3">
+                                <div class="mb-2 small"><strong>0.0:</strong> Больше естественности и свободы.</div>
+                                <div class="small"><strong>1.0:</strong> Строгое соответствие характеристикам.</div>
+                            </div>
+                            <p class="card-text"><small class="badge bg-light text-dark fw-normal">Совет: Оптимально 0.75</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-end mb-3">
+            <h2 class="fw-bold mb-0">Доступные голоса</h2>
+            <span class="badge bg-white text-muted border">Всего: {{ voices_info|length }}</span>
+        </div>
+
+        {% if error_message %}
+            <div class="alert alert-danger border-0 shadow-sm" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> {{ error_message }}
+            </div>
+        {% endif %}
+
+        {% if voices_info %}
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Имя голоса</th>
+                                <th>Описание</th>
+                                <th>Категория</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for voice in voices_info %}
+                                <tr>
+                                    <td class="fw-bold text-dark p-3">{{ voice.name }}</td>
+                                    <td class="text-muted p-3">{{ voice.description }}</td>
+                                    <td class="p-3"><span class="badge badge-category rounded-pill">{{ voice.category }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+             {% if not error_message %}
+                <div class="alert alert-info border-0 shadow-sm" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> Информация о голосах не найдена.
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="mt-5">
+            <a href="{% url 'index' %}" class="btn btn-custom-back">
+                <i class="fas fa-chevron-left me-2"></i> На главную
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

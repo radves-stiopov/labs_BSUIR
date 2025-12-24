@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет по реферированию — {{ documents.0.title|truncatechars:20 }}</title>
+    <style>
+        /* Общие настройки */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            line-height: 1.7;
+            background-color: #ffffff;
+            color: #2d3436;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Шапка отчета */
+        .report-header {
+            text-align: left;
+            border-left: 8px solid #6366f1;
+            padding: 20px 30px;
+            background: #f8fafc;
+            margin-bottom: 60px;
+        }
+
+        .report-header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+        }
+
+        .report-header p {
+            margin: 5px 0 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Блок документа */
+        .document-block {
+            margin-bottom: 80px;
+            page-break-inside: avoid;
+        }
+
+        .doc-title-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .document-meta {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Секции */
+        h3 {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6366f1;
+            margin: 35px 0 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        h3::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin-left: 15px;
+        }
+
+        .report-section {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            font-size: 15px;
+            color: #334155;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Стили для древовидной структуры и кода */
+        .keywords-box {
+            background-color: #f0fdf4;
+            border: 1px solid #dcfce7;
+            font-family: 'Fira Code', monospace;
+            color: #166534;
+        }
+
+        .source-box {
+            background-color: #f8fafc;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #64748b;
+            border-style: dashed;
+        }
+
+        /* Разделитель страниц при печати */
+        .page-divider {
+            border: none;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 60px 0;
+        }
+
+        @media print {
+            body { padding: 0; }
+            .container { max-width: 100%; border: none; }
+            .report-section { box-shadow: none; border: 1px solid #ccc; }
+            .report-header { background: #fff; border-left: 4px solid #000; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="report-header">
+            <h1>Отчет по автоматическому реферированию</h1>
+            <p>Сгенерировано системой Document Abstractor • 2025</p>
+        </header>
+
+        {% for doc in documents %}
+            <article class="document-block">
+                <div class="doc-title-box">
+                    <h2>{{ doc.title }}</h2>
+                    <span class="document-meta">Загружен: {{ doc.upload_date|date:"d.m.Y" }}</span>
+                </div>
+
+                <h3>Классический реферат (TF-IDF)</h3>
+                <div class="report-section">
+{{ doc.classic_summary_content }}
+                </div>
+
+                <h3>Реферат ключевых слов (Ollama)</h3>
+                <div class="report-section keywords-box" id="keywords-{{ forloop.counter }}">
+{{ doc.keywords_summary_content }}
+                </div>
+
+                <h3>Полный текст документа</h3>
+                <div class="report-section source-box">
+{{ doc.text_content }}
+                </div>
+            </article>
+
+            {% if not forloop.last %}
+                <hr class="page-divider">
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <script>
+        // Небольшой скрипт для отрисовки веток дерева в HTML-отчете
+        document.querySelectorAll('.keywords-box').forEach(box => {
+            let content = box.innerHTML;
+            // Заменяем стандартные маркеры на графические ветки
+            box.innerHTML = content.replace(/^(\s*)[-*+•]/gm, '$1└─');
+        });
+    </script>
+</body>
+</html>

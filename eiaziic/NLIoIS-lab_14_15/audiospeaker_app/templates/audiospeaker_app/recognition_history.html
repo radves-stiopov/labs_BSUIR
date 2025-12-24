@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>{{ title }}</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary-accent: #6366f1;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            padding-bottom: 3rem;
+        }
+
+        .page-header {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            margin-bottom: 2rem;
+        }
+
+        /* Стиль карточки истории */
+        .history-card {
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .history-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+
+        .entry-date {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+        }
+
+        .entry-date i {
+            margin-right: 8px;
+            color: var(--primary-accent);
+        }
+
+        /* Текст распознавания */
+        .recognized-box {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #cbd5e1;
+        }
+
+        .text-quote {
+            font-style: italic;
+            color: #334155;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        /* Кастомный аудио-плеер (базовая стилизация) */
+        audio {
+            height: 40px;
+            border-radius: 8px;
+            filter: grayscale(0.2) opacity(0.9);
+        }
+
+        /* Статусы */
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-back {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 24px;
+            border: 2px dashed #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="page-header">{{ title }}</h1>
+
+        {% if history_entries %}
+            <div class="history-list">
+                {% for entry in history_entries %}
+                    <div class="history-card">
+                        <div class="d-flex w-100 justify-content-between align-items-center mb-3">
+                            <span class="entry-date">
+                                <i class="far fa-calendar-alt"></i>
+                                {{ entry.created_at|date:"d.m.Y" }} в {{ entry.created_at|date:"H:i" }}
+                            </span>
+
+                            <div>
+                                {% if entry.status == 'COMPLETED' %}
+                                    <span class="badge badge-status bg-success-subtle text-success border border-success-subtle">Завершено</span>
+                                {% elif entry.status == 'FAILED' %}
+                                    <span class="badge badge-status bg-danger-subtle text-danger border border-danger-subtle">Ошибка</span>
+                                {% else %}
+                                    <span class="badge badge-status bg-secondary-subtle text-secondary border border-secondary-subtle">В обработке</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if entry.status == 'COMPLETED' %}
+                             <div class="recognized-box">
+                                 <p class="text-quote">"{{ entry.recognized_text }}"</p>
+                             </div>
+                        {% elif entry.status == 'FAILED' %}
+                            <div class="alert alert-danger py-2 px-3 rounded-3 my-3">
+                                <small><i class="fas fa-circle-exclamation me-2"></i>{{ entry.error_message }}</small>
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas fa-play-circle text-primary fs-4"></i>
+                            <audio controls class="w-100" preload="none">
+                                <source src="{{ entry.uploaded_audio_file.url }}" type="audio/mpeg">
+                                Ваш браузер не поддерживает аудио.
+                            </audio>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-microphone-slash fa-3x text-light mb-3"></i>
+                <h4 class="text-secondary">История пуста</h4>
+                <p class="text-muted">Вы еще не распознавали голосовые сообщения.</p>
+                <a href="{% url 'recognize_speech' %}" class="btn btn-primary rounded-pill px-4 mt-2">
+                    Попробовать сейчас
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'index' %}" class="btn btn-back">
+                <i class="fas fa-chevron-left me-2"></i>На главную
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
